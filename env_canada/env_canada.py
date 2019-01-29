@@ -90,9 +90,9 @@ class ECData(object):
             })
         # while looping for daily forecasts, capture the text summary of the forecast (human readable)
         # EC stops reporting today summary once the "day" is over
-        # if morning and afternoon, summary_1 will be today summary and summary_2 will be tonight
-        # 3 is tomorrow, 4 is tomorrow night, etc ---- EC reports these per half day
-        # if evening and overnight, summary_1 will be tonight summary and summary_2 will be tomorrow summary
+        # if it is morning and afternoon, summary_1 will be reported today summary and summary_2 will be tonight
+        # 3 is tomorrow, 4 is tomorrow night, etc ---- EC reports these half day
+        # if it is evening and night, summary_1 will be tonight summary and summary_2 will be tomorrow summary
         # 3 is tomorrow night, 4 is next day sommary, etc
             self.conditions['summary_{}'.format(count)] = [ f.find('./period').attrib.get('textForecastName'), f.findtext('textSummary') ]
 #            self.conditions['summary_{}'.format(count)] = f.find('./period').attrib.get('textForecastName') + ": " + f.findtext('textSummary') 
