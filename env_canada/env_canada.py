@@ -3,7 +3,9 @@ import xml.etree.ElementTree as et
 
 from geopy import distance
 import requests
+import logging
 
+_LOGGER = logging.getLogger(__name__)
 
 class ECData(object):
     SITE_LIST_URL = 'http://dd.weatheroffice.ec.gc.ca/citypage_weather/docs/site_list_en.csv'
@@ -77,6 +79,7 @@ class ECData(object):
         self.forecast_time = xml_object.findtext('./forecastGroup/dateTime/timeStamp')
 
         self.daily_forecasts = []
+        count = 1
         for f in xml_object.findall('./forecastGroup/forecast'):
             self.daily_forecasts.append({
                 'period': f.findtext('period'),
@@ -85,6 +88,15 @@ class ECData(object):
                 'temperature': f.findtext('./temperatures/temperature'),
                 'temperature_class': f.find('./temperatures/temperature').attrib.get('class')
             })
+        # while looping for daily forecasts, capture the text summary of the forecast (human readable)
+        # EC stops reporting today summary once the "day" is over
+        # if morning and afternoon, summary_1 will be today summary and summary_2 will be tonight
+        # 3 is tomorrow, 4 is tomorrow night, etc ---- EC reports these per half day
+        # if evening and overnight, summary_1 will be tonight summary and summary_2 will be tomorrow summary
+        # 3 is tomorrow night, 4 is next day sommary, etc
+            self.conditions['summary_{}'.format(count)] = [ f.find('./period').attrib.get('textForecastName'), f.findtext('textSummary') ]
+#            self.conditions['summary_{}'.format(count)] = f.find('./period').attrib.get('textForecastName') + ": " + f.findtext('textSummary') 
+            count = count + 1
 
         # Update hourly forecasts
         self.hourly_forecasts = []
